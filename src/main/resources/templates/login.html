@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="Cache-Control" content="no-siteapp" />
+		<title>login</title>
+		<link rel="icon" type="image/png" href="assets/i/favicon.png">
+		<link rel="stylesheet" href="assets/css/iview.css" />
+		<link rel="stylesheet/less" type="text/css" href="assets/css/app.less" />
+		<style>
+			html,body{
+				height: 100%;
+				background-image: url(assets/images/login_bg.png);
+				background-repeat: no-repeat;
+				background-position: bottom;
+				background-size: 100%;
+				background-color: white;
+			}
+		</style>
+	</head>
+	<body>
+		<!--[if lte IE 9]>
+			你正在使用
+		<![endif]-->
+		<div id="app">
+			<row>
+		        <i-col :xs="{ span: 24}" :sm="{ span: 16, offset: 4 }" :md="{ span: 12, offset: 6 }" :lg="{ span: 10, offset: 7 }">
+		        	<div class="box-login">
+		        		<div class="title">
+		        			<img src="assets/images/login_title.png"/>
+		        		</div>
+		        		<i-col :xs="{ span: 12,offset:6}" :md="{ span: 12,offset:6}" :lg="{ span: 10,offset:7}" >
+		        			<div class="box-form">
+			        			<div class="form-item">
+			        				<input type="" name="" id="" value="" v-model="userName" placeholder="用户名" class="me-input" autocomplete="off" />
+			        				<Icon type="person"></Icon>
+			        			</div>
+			        			<div class="form-item">
+			        				<input type="password" name="" id="" value=""  v-model="passWord" placeholder="密码" class="me-input" autocomplete="off"/>
+			        				<Icon type="locked"></Icon>
+			        			</div>
+			        			<div class="form-item am-padding-top-sm">
+			        				<div class="me-btn me-btn-default" @click="login">
+			        					 登&nbsp;&nbsp;&nbsp;录
+			        				</div>
+			        			</div>
+			        			
+			        		</div>
+		        			
+						</i-col>
+		        		
+		        	</div>
+		        </i-col>
+		    </row>
+		</div>
+		
+		
+		 
+	</body>
+	<script src="assets/js/less.min.js"></script>
+	<script src="assets/js/vue.js"></script>
+	<script type="text/javascript" src="assets/js/iview.js"></script>
+	<script src="assets/js/app.js"></script>
+	<script>
+		var app = new Vue({
+			el: '#app',
+			data: function() {
+				return {
+					userName:'',
+					passWord:''
+				}
+			},
+			methods: {
+				login(){
+					if(this.userName==""||this.passWord==""){
+						this.$Message.error('用户名和密码不能为空');
+					}else{
+						console.log("userName="+this.userName,"passWord="+this.passWord)
+						this.$Message.success('登录成功');
+						localStorage.setItem('navInfo', '[{name:"实时预警",icon:"android-notifications",url:"toindex"},{name:"数据查询",icon:"search",url:"toquery"},{name:"战果统计",icon:"stats-bars",url:"tocommary"},{name:"用户管理",icon:"ios-people",url:"touser"},{name:"安全退出",icon:"power",url:"logout",child:[{name:"实时预警1",icon:"android-notifications",url:"dd1"},{name:"实时预警2",icon:"android-notifications",url:"dd2"}]}]');
+						window.location.href = "toindex"
+					}
+				}
+			},
+			created() {
+			}
+		})
+	</script>
+
+</html>

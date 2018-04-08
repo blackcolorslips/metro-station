@@ -1,0 +1,600 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="Cache-Control" content="no-siteapp" />
+		<title>query</title>
+		<link rel="icon" type="image/png" href="assets/i/favicon.png">
+		<link rel="stylesheet" href="assets/css/iview.css" />
+		<link rel="stylesheet/less" type="text/css" href="assets/css/app.less" />
+		<style>
+			html,
+			body,
+			#app {
+				min-height: 100%;
+			}
+			
+			.ivu-form .ivu-form-item-label {
+				color: white;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!--[if lte IE 9]>
+			你正在使用
+		<![endif]-->
+		
+		<div id="app">
+			<i-menu mode="horizontal" :theme="menuTheme" active-name="query" @on-select="changeNav">
+				<row>
+					<i-col span="10">
+						<div class="layout-logo">
+							<img src="assets/images/logo.png" />
+							<span>汽车站查缉查控平台</span>
+						</div>
+					</i-col>
+					<i-col span="14">
+						<mine-nav :nav-info="navInfo"></mine-nav>
+					</i-col>
+				</row>
+
+			</i-menu>
+
+			<div class="layout-main">
+				<div class="am-margin-bottom-lg">
+					<radio-group v-model="searchType" type="button">
+						<Radio label="real">实名认证数据查询</Radio>
+						<Radio label="buy">购票数据记录查询</Radio>
+						<Radio label="check">检票数据记录查询</Radio>
+					</radio-group>
+				</div>
+				<div v-if="searchType==='real'">
+					<i-form :model="searchReal" :label-width="80">
+						<row>
+							<i-col :md="12" :lg="8">
+								<form-item label="采集时间">
+									<date-picker v-model="searchReal.timeCollect" type="datetimerange" placeholder="选择时间段" style="display: block;"></date-picker>
+								</form-item>
+							</i-col>
+							<i-col :md="6" :lg="4">
+								<form-item label="姓名">
+									<i-input v-model="searchReal.name"></i-input>
+								</form-item>
+							</i-col>
+							<i-col :md="6" :lg="4">
+								<form-item label="性别">
+									<i-select v-model="searchReal.sex" clearable>
+										<i-option v-for="item in sex" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+									</i-select>
+								</form-item>
+							</i-col>
+							<i-col :md="6" :lg="4">
+								<form-item label="身份证号">
+									<i-input v-model="searchReal.idNumber" ></i-input>
+								</form-item>
+							</i-col>
+							<i-col :md="6" :lg="4">
+								<form-item label="设备名称">
+									<i-select v-model="searchReal.device" clearable filterable>
+										<i-option v-for="item in device" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+									</i-select>
+								</form-item>
+							</i-col>
+
+							<i-col :md="6" :lg="4">
+								<form-item label="检验结果">
+									<i-select v-model="searchReal.checkResult" clearable>
+										<i-option v-for="item in checkResult" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+									</i-select>
+								</form-item>
+							</i-col>
+							<i-col :md="{span:6}" :lg="{span:6,offset:14}">
+								<div class="am-text-right">
+									<i-button type="primary" @click="submitReal('searchReal')">搜索</i-button>
+									<i-button type="success" @click="exportData('real')">导出excel</i-button>
+								</div>
+							</i-col>
+						</row>
+
+					</i-form>
+
+				</div>
+				<div v-else-if="searchType=='buy'">
+					<i-form :model="searchBuy" :label-width="80">
+						<row>
+							<i-col :md="12" :lg="8">
+								<form-item label="购票时间">
+									<date-picker v-model="searchBuy.timeCollect" type="datetimerange" placeholder="选择时间段" style="display: block;"></date-picker>
+								</form-item>
+							</i-col>
+							<i-col :md="6" :lg="4">
+								<form-item label="姓名">
+									<i-input v-model="searchBuy.name"></i-input>
+								</form-item>
+							</i-col>
+							<i-col :md="6" :lg="4">
+								<form-item label="性别">
+									<i-select v-model="searchBuy.sex" clearable>
+										<i-option v-for="item in sex" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+									</i-select>
+								</form-item>
+							</i-col>
+							<i-col :md="6" :lg="4">
+								<form-item label="身份证号">
+									<i-input v-model="searchBuy.idNumber"></i-input>
+								</form-item>
+							</i-col>
+							<i-col :md="12" :lg="8">
+								<form-item label="乘车时间">
+									<date-picker v-model="searchBuy.timeRide" type="datetimerange" placeholder="选择时间段" style="display: block;"></date-picker>
+								</form-item>
+							</i-col>
+							<i-col :md="6" :lg="4">
+								<form-item label="目的地">
+									<i-select v-model="searchBuy.cityList" filterable>
+										<i-option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+									</i-select>
+								</form-item>
+							</i-col>
+							<i-col :md="6" :lg="4">
+								<form-item label="检验结果">
+									<i-select v-model="searchBuy.checkResult" clearable>
+										<i-option v-for="item in checkResult" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+									</i-select>
+								</form-item>
+							</i-col>
+							<i-col :md="{span:12,offset:6}" :lg="{span:4,offset:4}">
+								<div class="am-text-right">
+									<i-button type="primary" @click="submitBuy()">搜索</i-button>
+									<i-button type="success">导出excel</i-button>
+								</div>
+							</i-col>
+						</row>
+
+					</i-form>
+				</div>
+				
+				<div v-else-if="searchType=='check'">
+					<i-form :model="searchBuy" :label-width="80">
+						<row>
+							<i-col :md="12" :lg="8">
+								<form-item label="采集时间">
+									<date-picker v-model="searchCheck.timeCollect" type="datetimerange" placeholder="选择时间段" style="display: block;"></date-picker>
+								</form-item>
+							</i-col>
+							<i-col :md="6" :lg="4">
+								<form-item label="姓名">
+									<i-input v-model="searchCheck.name"></i-input>
+								</form-item>
+							</i-col>
+							<i-col :md="6" :lg="4">
+								<form-item label="性别">
+									<i-select v-model="searchCheck.sex" clearable>
+										<i-option v-for="item in sex" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+									</i-select>
+								</form-item>
+							</i-col>
+							<i-col :md="6" :lg="4">
+								<form-item label="身份证号">
+									<i-input v-model="searchCheck.idNumber"></i-input>
+								</form-item>
+							</i-col>
+							<i-col :md="12" :lg="8">
+								<form-item label="乘车时间">
+									<date-picker v-model="searchCheck.timeRide" type="datetimerange" placeholder="选择时间段" style="display: block;"></date-picker>
+								</form-item>
+							</i-col>
+							<i-col :md="6" :lg="4">
+								<form-item label="目的地">
+									<i-select v-model="searchCheck.cityList" filterable filterable>
+										<i-option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+									</i-select>
+								</form-item>
+							</i-col>
+							<i-col :md="6" :lg="4">
+								<form-item label="设备名称">
+									<i-select v-model="searchCheck.device" clearable filterable>
+										<i-option v-for="item in device" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+									</i-select>
+								</form-item>
+							</i-col>
+							<i-col :md="6" :lg="4">
+								<form-item label="检验结果">
+									<i-select v-model="searchCheck.checkResult" clearable>
+										<i-option v-for="item in checkResult" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+									</i-select>
+								</form-item>
+							</i-col>
+							<i-col :md="{span:12}" :lg="{span:4}">
+								<div class="am-text-right">
+									<i-button type="primary" @click="submitCheck()">搜索</i-button>
+									<i-button type="success">导出excel</i-button>
+								</div>
+							</i-col>
+						</row>
+
+					</i-form>
+				</div>
+				
+				
+
+				<div class="am-margin-vertical-sm">
+					<template v-if="searchType==='real'">
+						<i-table border :loading="loadingReal" :columns="columnsReal" :data="dataReal" ref="dataReal"></i-table>
+						<div class="module-page">
+							<Page :total="100" show-elevator></Page>
+						</div>
+					</template>
+					<template v-else-if="searchType=='buy'">
+						<i-table border :columns="columnsBuy" :data="dataBuy"></i-table>
+						<div class="module-page">
+							<Page :total="100" show-elevator></Page>
+						</div>
+					</template>
+					<template v-else-if="searchType=='check'">
+						<i-table border :columns="columnsCheck" :data="dataCheck"></i-table>
+						<div class="module-page">
+							<Page :total="100" show-elevator></Page>
+						</div>
+					</template>
+
+				</div>
+
+			</div>
+			
+			<Modal v-model="modalFlag" title="人员详情" width="80%" cancel-text="">
+				<i-form  :model="modalPersonData"  :label-width="80" >
+					<row>
+						<i-col :xs="8" :md="8" :lg="6" >
+							<i-col :xs="24" :sm="12" :lg="12" >
+								<div class="am-text-center">
+									<img src="assets/images/user.jpg" width="100px"/>
+								</div>
+								<div class="am-text-center">
+									证件照片
+								</div>
+							</i-col>
+							<i-col :xs="24" :sm="12" :lg="12" >
+								<div class="am-text-center">
+									<img src="assets/images/user.jpg" width="100px"/>
+								</div>
+								<div class="am-text-center">
+									采集照片
+								</div>
+								
+							</i-col>
+							
+						</i-col>
+						
+						<i-col :xs="16" :md="16" :lg="18" >
+							<row>
+								<i-col :xs="24" :md="12" :lg="8">
+									<form-item label="姓名" >
+										<i-input v-model="modalPersonData.name" class="not-click"></i-input>
+									</form-item>
+								</i-col>
+								<i-col :xs="24" :md="12" :lg="8">
+									<form-item label="姓名" >
+										<i-input v-model="modalPersonData.name" class="not-click"></i-input>
+									</form-item>
+								</i-col>
+								<i-col :xs="24" :md="12" :lg="8">
+									<form-item label="姓名" >
+										<i-input v-model="modalPersonData.name" class="not-click"></i-input>
+									</form-item>
+								</i-col>
+								<i-col :xs="24" :md="12" :lg="8">
+									<form-item label="姓名" >
+										<i-input v-model="modalPersonData.name" class="not-click"></i-input>
+									</form-item>
+								</i-col>
+							</row>
+						</i-col>
+						
+						
+					</row>
+
+				</i-form>
+	    	</Modal>
+	    	
+	    	
+		</div>
+
+	</body>
+	<script src="assets/js/less.min.js"></script>
+	<script src="assets/js/vue.js"></script>
+	<script type="text/javascript" src="assets/js/iview.js"></script>
+	<script type="text/javascript" src="assets/js/app.js"> </script>
+	<script>
+	
+		var app = new Vue({
+			el: '#app',
+			data: function() {
+				return {
+					modalFlag:false,
+					modalPersonData:{
+						name:"qq"
+					},
+					menuTheme: 'dark', //顶部导航皮肤
+					searchType: "real", //搜索类型
+					loadingReal:false,
+					searchReal: {
+						timeCollect: "",
+						name: "",
+						sex: "",
+						idNumber: "",
+						device: "",
+						checkResult: ""
+					},
+					searchBuy: {
+						timeCollect: "",
+						timeRide: "",
+						name: "",
+						sex: "",
+						cityList: "",
+						idNumber: "",
+						device: "",
+						checkResult: ""
+					},
+					searchCheck: {
+						timeCollect: "",
+						timeRide: "",
+						name: "",
+						sex: "",
+						cityList: "",
+						idNumber: "",
+						checkResult: ""
+					},
+
+					sex: [{
+							value: '0',
+							label: '女  '
+						},
+						{
+							value: '1',
+							label: '男  '
+						}
+					],
+					device: [{
+							value: '0',
+							label: '设备名称1'
+						},
+						{
+							value: '1',
+							label: '设备名称2 '
+						}
+					],
+					checkResult: [{
+							value: '0',
+							label: '通过'
+						},
+						{
+							value: '1',
+							label: '重点人员'
+						}
+					],
+					cityList: [{
+						value: '02',
+						label: '无锡'
+					}, {
+						value: '01',
+						label: '盐城'
+					}],
+
+					columnsReal: [{
+							title: '编号',
+							key: 'number',
+							align: "center",
+							render: function(h, params){
+								return h('i', params.index + 1)
+							}
+						},
+						{
+							title: '采集时间',
+							key: 'timeCollect'
+						},
+						{
+							title: '姓名',
+							key: 'name',
+							 render: function(h, params){
+							 	console.log(this)
+							 	return h('Button', {
+									props: {
+										type: 'primary',
+										size: 'small'
+									},
+									style: {
+										marginRight: '5px'
+									},
+									on: {
+										click:function(){
+											app.modalFlag=true;
+										}
+									}
+								}, this.row.name)
+							 }
+						},
+						{
+							title: '性别',
+							key: 'sex'
+						},
+						{
+							title: '出生日期',
+							key: 'birthday'
+						},
+						{
+							title: '民族',
+							key: 'nation'
+						},
+						{
+							title: '身份证号',
+							key: 'idNumber'
+						},
+						{
+							title: '设备名称',
+							key: 'drive'
+						},
+						{
+							title: '核查结果',
+							key: 'result'
+						}
+					],
+					dataReal: [{
+						name: 'John Brown',
+						age: 18,
+						address: 'New York No. 1 Lake Park',
+						date: '2016-10-03'
+					}],
+					columnsBuy: [{
+							title: '编号',
+							key: 'number',
+							align: "center",
+							render: function(h, params){
+								return h('i', params.index + 1)
+							}
+						},
+						{
+							title: '采集时间',
+							key: 'timeCollect'
+						},
+						{
+							title: '姓名',
+							key: 'name'
+						},
+						{
+							title: '性别',
+							key: 'sex'
+						},
+						{
+							title: '出生日期',
+							key: 'birthday'
+						},
+						{
+							title: '民族',
+							key: 'nation'
+						},
+						{
+							title: '身份证号',
+							key: 'idNumber'
+						},
+						{
+							title: '购票日期',
+							key: 'timeBuy'
+						},
+						{
+							title: '乘车日期',
+							key: 'timeRide'
+						},
+						{
+							title: '目的地',
+							key: 'cityList'
+						},
+						{
+							title: '核查结果',
+							key: 'result'
+						}
+					],
+					dataBuy:[],
+					
+					columnsCheck: [{
+							title: '编号',
+							key: 'number',
+							align: "center",
+							render: function(h, params){
+								return h('i', params.index + 1)
+							}
+						},
+						{
+							title: '采集时间',
+							key: 'timeCollect'
+						},
+						{
+							title: '姓名',
+							key: 'name'
+						},
+						{
+							title: '性别',
+							key: 'sex'
+						},
+						{
+							title: '出生日期',
+							key: 'birthday'
+						},
+						{
+							title: '民族',
+							key: 'nation'
+						},
+						{
+							title: '身份证号',
+							key: 'idNumber'
+						},
+						{
+							title: '乘车日期',
+							key: 'timeRide'
+						},
+						{
+							title: '目的地',
+							key: 'cityList'
+						},
+						{
+							title: '设备名称',
+							key: 'device'
+						},
+						{
+							title: '核查结果',
+							key: 'result'
+						}
+					],
+					dataCheck:[]
+					
+				}
+			},
+			methods: {
+				//导航栏跳转
+				changeNav(name) {
+					if(name=="logout"){
+						localStorage.removeItem('navInfo');
+						this.$Message.success('退出成功');
+						window.location.href = "login.html"
+					}else{
+						window.location.href = name + ".html"
+					}
+				},
+
+				//实名制搜索
+				submitReal(name) {
+					console.log(this.searchReal)
+				},
+				//购票搜索
+				submitBuy() {
+					console.log(this.searchBuy)
+				},
+				//检票搜索
+				submitCheck() {
+					console.log(this.searchCheck)
+				},
+				//导出excel
+				exportData (type) {
+	                if (type === "real") {
+	                    this.$refs.dataReal.exportCsv({
+	                        filename: '实名认证数据'
+	                    });
+	                }
+                }
+
+			},
+
+			created() {
+				this.navInfo=navInfo
+			
+			},
+			mounted(){
+			}
+		})
+	</script>
+
+</html>

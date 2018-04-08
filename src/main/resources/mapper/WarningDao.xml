@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hengdong.metrostation.dao.WarningDao">
+
+<!--auto generated Code-->
+    <resultMap id="WarningInfoMap" type="com.hengdong.metrostation.dto.warning.WarningInfo">
+        <result column="id" property="id"/>
+        <result column="xm" property="xm"/>
+        <result column="xb" property="xb"/>
+        <result column="sfzh" property="sfzh"/>
+        <result column="jklxmc" property="jklxmc"/>
+        <result column="insert_time" property="insertTime"/>
+        <result column="bjly" property="bjly"/>
+        <result column="ccrq" property="ccrq"/>
+        <result column="gprq" property="gprq"/>
+    </resultMap>
+
+    <resultMap id="WarningDetailMap" type="com.hengdong.metrostation.dto.warning.WarningDetail">
+        <result column="xm" property="xm"/>
+        <result column="xb" property="xb"/>
+        <result column="sfzh" property="sfzh"/>
+        <result column="zjzp" property="zjzp"/>
+        <result column="sfd" property="sfd"/>
+        <result column="mdd" property="mdd"/>
+        <result column="jpk" property="jpk"/>
+        <result column="kcsj" property="kcsj"/>
+        <result column="xq" property="xq"/>
+        <result column="zprlzp" property="zprlzp"/>
+    </resultMap>
+
+    <select id="findWarningInfo" resultMap="WarningInfoMap">
+        SELECT
+            t1.ID,
+            t3.JKLXMC,
+            t1.XQ,
+            t1.BJLY,
+            t1.INSERT_TIME,
+            t2.XM,
+            t2.XB,
+            t2.SFZH
+        FROM T_DTZ_JKBDJG t1, T_DTZ_SFZXX t2, T_DTZ_JKLX t3
+        WHERE t1.SFZXXID = t2.ID
+            AND t1.BDJG = t3.ID
+--             AND t1.INSERT_TIME = sysdate
+            AND t1.READ_FLAG = '0'
+    </select>
+    <!--<select id="findWarningInfo" resultMap="WarningInfoMap">
+        SELECT
+            t1.ID,
+            t3.JKLXMC,
+            t1.XQ,
+            t1.BJLY,
+            t1.INSERT_TIME,
+            t2.XM,
+            t2.XB,
+            t2.SFZH,
+            t5.CCRQ
+        FROM T_DTZ_JKBDJG t1, T_DTZ_SFZXX t2, T_DTZ_JKLX t3, T_QCZ_GPJL t4, T_QCZ_CPXX t5
+        WHERE t1.SFZXXID = t2.ID
+            AND t1.BDJG = t3.ID
+            AND t4.GPRID = t2.ID
+            AND t4.CPID = t5.ID
+            AND t1.BJLY = '1'
+&#45;&#45;             AND t1.INSERT_TIME = sysdate
+            AND t1.READ_FLAG = '0'
+        UNION ALL
+        SELECT
+            t1.ID,
+            t3.JKLXMC,
+            t1.XQ,
+            t1.BJLY,
+            t1.INSERT_TIME,
+            t2.XM,
+            t2.XB,
+            t2.SFZH,
+            NULL
+        FROM T_DTZ_JKBDJG t1, T_DTZ_SFZXX t2, T_DTZ_JKLX t3, T_QCZ_JPJL t4, T_QCZ_CPXX t5
+        WHERE t1.SFZXXID = t2.ID
+            AND t1.BDJG = t3.ID
+            AND t4.GPRID = t2.ID
+            AND t4.CPID = t5.ID
+            AND t1.BJLY = '2'
+&#45;&#45;             AND t1.INSERT_TIME = sysdate
+            AND t1.READ_FLAG = '0'
+        UNION ALL
+        SELECT
+            t1.ID,
+            t3.JKLXMC,
+            t1.XQ,
+            t1.BJLY,
+            t1.INSERT_TIME,
+            t2.XM,
+            t2.XB,
+            t2.SFZH,
+            NULL
+        FROM T_DTZ_JKBDJG t1, T_DTZ_SFZXX t2, T_DTZ_JKLX t3, T_QCZ_ZZHYJL t4
+        WHERE t1.SFZXXID = t2.ID
+            AND t1.BDJG = t3.ID
+            AND t4.SFZXX = t1.SFZXXID
+            AND t1.BJLY = '3'
+&#45;&#45;             AND t1.INSERT_TIME = sysdate
+            AND t1.READ_FLAG = '0'
+    </select>-->
+
+    <select id="findNowWarningInfo" resultMap="WarningInfoMap">
+        SELECT
+            t4.JKLXMC,
+--             t1.XQ,
+            t5.XM,
+            t5.XB,
+            t5.SFZH,
+            t1.BJLY
+        FROM T_DTZ_JKBDJG t1,T_DTZ_JKLX t4, T_DTZ_SFZXX t5
+        WHERE t1.BJLY = '1'
+        AND t1.READ_FLAG <![CDATA[<>]]> '2'
+        AND t1.BDJG = t4.ID
+        AND t5.ID = t1.SFZXXID
+    </select>
+    <select id="findWarningDetail" resultMap="WarningDetailMap">
+        SELECT
+            t1.XM,
+            t1.XB,
+            t1.SFZH,
+            t1.ZJZP
+
+        <if test="bjly == '2'.toString()">
+            ,t4.ZPRLZP
+        </if>
+          FROM T_DTZ_SFZXX t1
+        <choose>
+            <when test="bjly == '2'.toString()">, T_QCZ_JPJL t4</when>
+            <when test="bjly == '1'.toString()">, T_QCZ_GPJL t4</when>
+        </choose>
+          WHERE t1.ID = t4.GPRID
+    </select>
+    <select id="findSelfCheckWarningDetail" resultMap="WarningDetailMap">
+        SELECT
+            t1.ID,
+            BDJG,
+            XQ,
+            READ_FLAG,
+            BJLY,
+            XM,
+            XB,
+            SFZH,
+            ZJZP,
+            ZPRLZP
+        FROM T_DTZ_JKBDJG t1, T_DTZ_SFZXX t2
+        WHERE t1.SFZXXID = t2.ID
+              AND t1.ID = #{id}
+    </select>
+    <update id="updateReadFlag">
+        UPDATE T_DTZ_JKBDJG
+        SET READ_FLAG = '1'
+        WHERE ID IN 
+            <foreach collection="list" open="(" separator="," close=")" index="index" item="item">
+                #{item}
+            </foreach>
+    </update>
+    <update id="updateNowReadFlag">
+        UPDATE T_DTZ_JKBDJG
+        SET READ_FLAG = '2'
+        WHERE ID = #{id}
+    </update>
+</mapper>

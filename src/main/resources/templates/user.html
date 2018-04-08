@@ -1,0 +1,297 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="Cache-Control" content="no-siteapp" />
+		<title>user</title>
+		<link rel="icon" type="image/png" href="assets/i/favicon.png">
+		<link rel="stylesheet" href="assets/css/iview.css" />
+		<link rel="stylesheet/less" type="text/css" href="assets/css/app.less" />
+		<style>
+			html,
+			body,
+			#app {
+				min-height: 100%;
+			}
+			
+		</style>
+	</head>
+
+	<body>
+		<!--[if lte IE 9]>
+			你正在使用
+		<![endif]-->
+		<div id="app">
+			<i-menu mode="horizontal" :theme="menuTheme" active-name="user" @on-select="changeNav">
+				<row>
+					<i-col span="10">
+						<div class="layout-logo">
+							<img src="assets/images/logo.png" />
+							<span>汽车站查缉查控平台</span>
+						</div>
+					</i-col>
+					<i-col span="14">
+						<mine-nav :nav-info="navInfo"></mine-nav>
+					</i-col>
+				</row>
+
+			</i-menu>
+			
+			<div class="layout-main">
+				<i-form :model="search" :label-width="80">
+					<row>
+						<i-col :md="6" :lg="4">
+							<form-item label="真实姓名">
+								<i-input v-model="search.realName"></i-input>
+							</form-item>
+						</i-col>
+						<i-col :md="6" :lg="4">
+							<form-item label="用户名">
+								<i-input v-model="search.userName"></i-input>
+							
+						</i-col>
+						
+						<i-col :md="{span:6,offset:6}" :lg="{span:4,offset:12}">
+							<form-item  class="am-text-right">
+								<i-button type="primary" @click="searchUser">搜索</i-button>
+								<i-button type="success" @click="addUser">添加用户</i-button>
+							</form-item>
+						</i-col>
+					</row>
+
+				</i-form>
+				
+				
+				<i-table border :loading="loading" :columns="columns" :data="data" ></i-table>
+				<div class="module-page">
+					<Page :total="100" show-elevator></Page>
+				</div>
+					
+				
+				
+				<!--编辑用户-->
+				<Modal  v-model="modalUser" :title="userFlag=='edit'?'编辑用户':'新建用户'" @on-ok="saveUser"   @on-cancel="cancelUser">
+				    <i-form ref="selectUser" :model="selectUser" :rules="rules"  :label-width="80">
+						<row>
+							<i-col :md="12" >
+								<form-item label="真实姓名"  prop="realName">
+									<i-input v-model="selectUser.realName"></i-input>
+								</form-item>
+							</i-col>
+							<i-col :md="12">
+								<form-item label="用户名" prop="userName">
+									<i-input v-model="selectUser.userName"></i-input>
+							</i-col>
+							<i-col :md="12" >
+								<form-item label="手机号码" prop="phone">
+									<i-input v-model="selectUser.phone"></i-input>
+								</form-item>
+							</i-col>
+							<i-col :md="12">
+								<form-item label="角色" prop="role">
+									<i-select v-model="selectUser.role" >
+								        <i-option v-for="item in role" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+								    </i-select>
+							</i-col>
+						</row>
+	
+					</i-form>
+			        <div slot="footer">
+			            <i-button v-show="userFlag=='edit'" type="error" @click="delUser">删除</i-button>
+			            <i-button type="primary" @click="saveUser('selectUser')">保存</i-button>
+			        </div>
+			    </Modal>
+			    
+			    
+			    
+			</div>
+		</div>
+
+	</body>
+	<script src="assets/js/less.min.js"></script>
+	<script src="assets/js/vue.js"></script>
+	<script type="text/javascript" src="assets/js/iview.js"></script>
+	<script type="text/javascript" src="assets/js/app.js"> </script>
+	<script>
+		 var app = new Vue({
+			el: '#app',
+			data: function() {
+				return {
+					roleName:["管理员0","管理员1","管理员2"],
+					userFlag:"",
+					loading:false,
+					modalUser: false,
+					menuTheme: 'dark',
+					search:{
+						userName:"",
+						realName:""
+					},
+					 rules: {
+	                    phone: [
+	                        { required: true,pattern:'^1[3|4|5|7|8][0-9]{9}$', message: '输入正确的手机号', trigger: 'blur' }
+	                    ],
+	                    userName: [
+	                        { required: true,message: '此为必填项'},
+	                    ],
+	                    realName: [
+	                        { required: true,message: '此为必填项'},
+	                    ],
+	                    role: [
+	                        { required: true,message: '此为必填项'},
+	                    ],
+	               },
+					role:[{
+						value:"0",
+						label:"管理员0"
+					},{
+						value:"1",
+						label:"管理员1"
+					},{
+						value:"2",
+						label:"管理员2"
+					}],
+					columns: [{
+							title: '编号',
+							key: 'number',
+							align: "center",
+							render: function(h, params) {
+								return h('i', params.index + 1)
+							}
+						},
+						{
+							title: '真实姓名',
+							key: 'realName'
+						},
+						{
+							title: '用户名',
+							key: 'userName'
+						},
+						{
+							title: '手机号码',
+							key: 'phone'
+						},
+						{
+							title: '角色',
+							key: 'role',
+							render: function(h, params) {
+								var roleName=["管理员0","管理员1","管理员2"];
+								return h('span',roleName[params.row.role])
+							}
+						},
+						{
+							title: '创建时间',
+							key: 'creatTime'
+						},
+						{
+							title: '操作',
+							align: 'center',
+							width:'auto',
+							render: function(h, params) {
+								return h('Button', {
+									props: {
+										type: 'primary',
+										size: 'small'
+									},
+									style: {
+										marginRight: '5px'
+									},
+									on: {
+										click: function() {
+											app.userFlag = "edit";
+											app.modalUser = true;
+											app.selectUser =JSON.parse(JSON.stringify( app.data[params.index]));
+											app.selectUser.index=params.index;
+										}
+									}
+								}, '编辑')
+							}
+						}
+					],
+					data:[{
+						realName:"王华杰",
+						userName:"admin",
+						phone:"18888888888",
+						role:"1",
+						creatTime:"2017-12-10",
+						id:1
+					},{
+						realName:"王华杰12",
+						userName:"admin",
+						phone:"18888888888",
+						role:"0",
+						creatTime:"2017-12-10",
+						id:2
+					}],
+					selectUser:{
+						realName:"",
+						userName:"",
+						phone:"",
+						role:"",
+						creatTime:"",
+						id:null
+					},
+				}
+			},
+			methods: {
+				//导航栏跳转
+				changeNav(name) {
+					if(name=="logout"){
+						localStorage.removeItem('navInfo');
+						this.$Message.success('退出成功');
+						window.location.href = "login.html"
+					}else{
+						window.location.href = name + ".html"
+					}
+				},
+				
+				//搜索
+				searchUser(){
+					console.log(this.search)
+				},
+				//对话框操作事件
+				saveUser(name) {
+					var that = this;
+					that.$refs[name].validate(function(valid){
+	                    if (valid) {
+	                    	if(that.userFlag=='edit'){
+	                    		that.$Message.success('修改成功');
+	                    		that.data.splice(that.selectUser.index,1,JSON.parse(JSON.stringify(that.selectUser)));
+	                    	}else if(that.userFlag=='add'){
+	                    		that.$Message.success('新增成功');
+	                    	}
+	                        that.modalUser=false;
+	                    } else {
+	                    	
+	                    }
+	                })
+	            },
+	            addUser(){
+	            	this.$refs['selectUser'].resetFields();
+	            	this.modalUser=true;
+	            	this.userFlag='add';
+	            },
+	            delUser(){
+                	this.$Message.success('删除成功');
+                	this.modalUser=false;
+	            },
+	            //取消按钮 用户弹窗方法
+	            cancelUser(){
+	            	 this.$refs['selectUser'].resetFields();
+	            },
+	           
+				
+			},
+			created() {
+				this.navInfo=navInfo
+			},
+			mounted(){
+			}
+		})
+	</script>
+	
+
+
+</html>

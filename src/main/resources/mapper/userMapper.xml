@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <mapper namespace="com.hengdong.metrostation.dao.UserDao">
+        <resultMap id="userModel" type="com.hengdong.metrostation.model.UserModel">
+            <result column="ID" property="ID"></result>
+            <result column="YHM" property="YHM"></result>
+            <result column="JYBH" property="JYBH"></result>
+            <result column="YHXB" property="YHXB"></result>
+            <result column="MM" property="MM"></result>
+            <result column="QYZT" property="QYZT"></result>
+            <result column="SFZH" property="SFZH"></result>
+            <result column="CJR" property="CJR"></result>
+            <result column="CJSJ" property="CJSJ"></result>
+            <result column="XGR" property="XGR"></result>
+            <result column="XGSJ" property="XGSJ"></result>
+            <result column="YHJSID" property="YHJSID"></result>
+            <result column="SJHM" property="SJHM"></result>
+            <result column="DLSJ" property="DLSJ"></result>
+            <result column="JYXM" property="JYXM"></result>
+            <result column="YHJS" property="YHJS"></result>
+        </resultMap>
+    <!--用戶名查詢用戶信息-->
+    <select id="getUserByUserName" resultMap="userModel">
+        select * from T_DTZ_YHXX t where t.yhm=#{username} and t.qyzt=1
+    </select>
+    <!--获取用户信息（分页）-->
+    <select id="getUsers" resultMap="userModel" parameterType="com.hengdong.metrostation.dto.DataGrid">
+        select * from (
+        select rownum rn,t1.* from (
+        select t.id,
+        t.yhm,
+        t.jyxm,
+        t.jybh,
+        t.yhxb,
+        t.mm,
+        t.qyzt,
+        t.sfzh,
+        t.cjr,
+        t.cjsj,
+        t.xgr,
+        t.xgsj,
+        t.yhjsid,
+        t.sjhm,
+        t.dlsj,
+        js.yhjs
+        from T_DTZ_YHXX t,t_DTZ_Yhjs js where t.yhjsid=js.id
+        <if test="params.username != '' and params.username != null">
+          and t.yhm like '%'|| #{params.username} ||'%'
+        </if>
+        <if test="params.xm != '' and params.xm != null">
+          and t.jyxm like '%'|| #{params.xm} ||'%'
+        </if>
+        <if test="params.bh != '' and params.bh != null">
+          and t.jybh =#{params.bh}
+        </if>
+        order by t.id desc)t1) where 1=1
+        <if test="rows !=0 and rows != ''">
+          and rn <![CDATA[<=]]>(#{page}*#{rows}) and rn <![CDATA[>]]>(#{page}-1)*#{rows}
+        </if>
+    </select>
+    <!--获取总条数-->
+    <select id="getUsersCount" resultType="java.lang.Integer" parameterType="com.hengdong.metrostation.dto.DataGrid">
+        select count(-1)
+        from T_DTZ_YHXX t,t_DTZ_Yhjs js where t.yhjsid=js.id
+        <if test="params.username != '' and params.username != null">
+            and t.yhm like  '%'||#{params.username} ||'%'
+        </if>
+        <if test="params.xm != '' and params.xm != null">
+            and t.jyxm like '%'|| #{params.xm} ||'%'
+        </if>
+        <if test="params.bh != '' and params.bh != null">
+            and t.jybh =#{params.bh}
+        </if>
+    </select>
+    <!--用户修改-->
+    <update id="updateUsers">
+        update T_DTZ_YHXX t
+        <set>
+            t.yhm=#{YHM,jdbcType=VARCHAR},
+            t.jybh=#{JYBH,jdbcType=NUMERIC},
+            t.yhxb=#{YHXB,jdbcType=NUMERIC},
+            <if test="MM != '' and MM != null">
+                t.mm=#{MM,jdbcType=VARCHAR},
+            </if>
+            t.qyzt=#{QYZT,jdbcType=NUMERIC},
+            t.sfzh=#{SFZH,jdbcType=VARCHAR},
+            t.xgr=1,
+            t.xgsj=sysdate,
+            t.yhjsid=#{YHJSID,jdbcType=NUMERIC},
+            t.sjhm=#{SJHM,jdbcType=VARCHAR},
+            t.jyxm=#{JYXM,jdbcType=VARCHAR}
+        </set>
+        where t.id = #{ID}
+    </update>
+    <!--新增用戶-->
+    <insert id="insertUsers">
+      insert into T_DTZ_YHXX
+  (id,
+   yhm,
+   jybh,
+   yhxb,
+   mm,
+   qyzt,
+   sfzh,
+   cjr,
+   cjsj,
+   yhjsid,
+   sjhm,
+   jyxm)
+values
+  (S_QCZ_YHXX.NEXTVAL,
+   #{YHM,jdbcType=VARCHAR},
+   #{JYBH,jdbcType=NUMERIC},
+   #{YHXB,jdbcType=NUMERIC},
+   #{MM,jdbcType=VARCHAR},
+   #{QYZT,jdbcType=NUMERIC},
+   #{SFZH,jdbcType=VARCHAR},
+   1,
+   sysdate,
+   #{YHJSID,jdbcType=NUMERIC},
+   #{SJHM,jdbcType=VARCHAR},
+   #{JYXM,jdbcType=VARCHAR}
+   )
+    </insert>
+</mapper>

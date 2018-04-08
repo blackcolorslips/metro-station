@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hengdong.metrostation.dao.DeviceDao">
+    <resultMap id="deviceModel" type="com.hengdong.metrostation.model.DeviceModel">
+        <result column="ID" property="ID"></result>
+        <result column="SBIP" property="SBIP"></result>
+        <result column="SBLXID" property="SBLXID"></result>
+        <result column="SBBH" property="SBBH"></result>
+        <result column="BSDZ" property="BSDZ"></result>
+        <result column="QYZT" property="QYZT"></result>
+        <result column="CJR" property="CJR"></result>
+        <result column="CJSJ" property="CJSJ"></result>
+        <result column="XGR" property="XGR"></result>
+        <result column="XGSJ" property="XGSJ"></result>
+        <result column="ZXZT" property="ZXZT"></result>
+        <result column="WZ" property="WZ"></result>
+    </resultMap>
+    <!--设备类型-->
+    <resultMap id="deviceTypeModel" type="com.hengdong.metrostation.model.DeviceTypeModel">
+        <result column="ID" property="ID"></result>
+        <result column="SBLXMC" property="SBLXMC"></result>
+    </resultMap>
+    <!--部署位置-->
+    <resultMap id="devicePositionModel" type="com.hengdong.metrostation.model.DevicePositionModel">
+        <result column="ID" property="ID"></result>
+        <result column="WZ" property="WZ"></result>
+    </resultMap>
+    <!--获取设备信息（分页）-->
+    <select id="getDevices" resultMap="deviceModel" parameterType="com.hengdong.metrostation.dto.DataGrid">
+        select * from (
+        select rownum rn,t2.* from (
+        select t.id,
+        t.sbip,
+        t.sblxid,
+        t.sbbh,
+        t.bsdz,
+        t.qyzt,
+        t.cjr,
+        t.cjsj,
+        t.xgr,
+        t.xgsj,
+        t.zxzt,
+        t1.sblxmc,
+        wz.wz
+        from t_dtz_sbxx t, t_dtz_Sblx t1, t_dtz_sbbswz wz
+        where t.sblxid = t1.id
+        and t.bsdz = wz.id
+        <if test="params.sblx != '' and params.sblx != null">
+        and t.sblxid = #{params.sblx}
+    </if>
+        <if test="params.bsdz != '' and params.bsdz != null">
+            and t.bsdz = #{params.bsdz}
+        </if>
+        <if test="params.qyzt != '' and params.qyzt != null">
+            and t.qyzt =#{params.qyzt}
+        </if>
+        order by t.id desc)t2) where 1=1
+        <if test="rows !=0 and rows != ''">
+            and rn <![CDATA[<=]]>(#{page}*#{rows}) and rn <![CDATA[>]]>(#{page}-1)*#{rows}
+        </if>
+    </select>
+   <!--获取总条数-->
+    <select id="getDevicesCount" resultType="java.lang.Integer" parameterType="com.hengdong.metrostation.dto.DataGrid">
+        select count(-1)
+        from t_dtz_sbxx t, t_dtz_Sblx t1, t_dtz_sbbswz wz
+        where t.sblxid = t1.id
+        and t.bsdz = wz.id
+        <if test="params.sblx != '' and params.sblx != null">
+            and t.sblxid = #{params.sblx}
+        </if>
+        <if test="params.bsdz != '' and params.bsdz != null">
+            and t.bsdz = #{params.bsdz}
+        </if>
+        <if test="params.qyzt != '' and params.qyzt != null">
+            and t.qyzt =#{params.qyzt}
+        </if>
+    </select>
+    <!--设备修改-->
+    <update id="updateDevices">
+          update t_dtz_sbxx
+          <set>
+              sbip = #{SBIP,jdbcType=VARCHAR},
+              sblxid = #{SBLXID,jdbcType=NUMERIC},
+              sbbh = #{SBBH,jdbcType=VARCHAR},
+              bsdz = #{BSDZ,jdbcType=NUMERIC},
+              qyzt = #{QYZT,jdbcType=NUMERIC},
+              xgr=1,
+              xgsj = sysdate,
+              zxzt = #{ZXZT,jdbcType=NUMERIC}
+          </set>
+        where id=#{ID}
+    </update>
+    <!--新增设备-->
+    <insert id="insertDevices">
+    insert into t_dtz_sbxx
+      (id, sbip, sblxid, sbbh, bsdz, qyzt, cjr, cjsj, zxzt)
+    values
+      (s_qcz_sbxx.nextval,
+       #{SBIP,jdbcType=VARCHAR},
+       #{SBLXID,jdbcType=NUMERIC},
+       #{SBBH,jdbcType=VARCHAR},
+       #{BSDZ,jdbcType=NUMERIC},
+       #{QYZT,jdbcType=NUMERIC},
+       1,
+       sysdate,
+       #{ZXZT,jdbcType=NUMERIC})
+    </insert>
+    <!--获取设备类型-->
+    <select id="getDeviceTypes" resultMap="deviceTypeModel">
+        select * from t_dtz_Sblx t
+    </select>
+    <!--获取设备部署位置-->
+    <select id="getDevicePositions" resultMap="devicePositionModel">
+        select * from t_dtz_sbbswz t
+    </select>
+    <!--获取设备类型编号-->
+    <select id="getDevNum" resultType="java.lang.String">
+        select
+        t.SBBH
+        FROM t_dtz_sbxx t
+        WHERE 1=1
+        <if test="deviceType !=null and deviceType != ''">
+            and t.SBLXID = #{deviceType}
+        </if>
+    </select>
+    <!--获取人像比对设备-->
+    <select id="getFaceCompareDevices" resultMap="deviceModel">
+        select t.id,t.sbbh from t_dtz_sbxx t where t.sblxid=3
+    </select>
+</mapper>

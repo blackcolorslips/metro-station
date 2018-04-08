@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hengdong.metrostation.dao.CtrlTypeDao">
+    <resultMap id="jklxModel" type="com.hengdong.metrostation.model.JKLXModel">
+        <result column="ID" property="ID"></result>
+        <result column="JKLXMC" property="JKLXMC"></result>
+    </resultMap>
+    <!--获取缉控类型信息-->
+    <select id="getJKLXModels" resultMap="jklxModel">
+        select t.id,
+        t.JKLXMC
+        from T_DTZ_JKLX t
+    </select>
+</mapper>

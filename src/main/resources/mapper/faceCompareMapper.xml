@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hengdong.metrostation.dao.FaceCompareDao">
+    <resultMap id="faceCompareModel" type="com.hengdong.metrostation.model.FaceCompareModel">
+        <result column="ID" property="ID"></result>
+        <result column="ZPRXZP" property="ZPRXZP"></result>
+        <result column="BZRXZP" property="BZRXZP"></result>
+        <result column="XSD" property="XSD"></result>
+        <result column="XM" property="XM"></result>
+        <result column="XB" property="XB"></result>
+        <result column="SFZH" property="SFZH"></result>
+        <result column="JKBDJG" property="JKBDJG"></result>
+        <result column="CJSJ" property="CJSJ"></result>
+        <result column="SBXXID" property="SBXXID"></result>
+        <result column="SBBH" property="SBBH"></result>
+    </resultMap>
+    <!--获取比对结果信息-->
+    <select id="getFaceCompares" resultMap="faceCompareModel" parameterType="com.hengdong.metrostation.dto.DataGrid">
+            select t.id,
+           t.zprxzp,
+           t.bzrxzp,
+           t.xsd,
+           t.xm,
+           t.xb,
+           t.sfzh,
+           t.jkbdjg,
+           t.cjsj,
+           t.sbxxid,
+           t1.sbbh
+      from t_dtz_rxbdjl t,t_dtz_sbxx t1
+     where t.xsd is not null
+        <if test="params.startTime!=null and params.endTime != null">
+            <![CDATA[
+	  			and t.cjsj >= to_date(#{params.startTime}, 'yyyy-mm-dd hh24:mi:ss')
+	  			and t.cjsj < to_date(#{params.endTime}, 'yyyy-mm-dd hh24:mi:ss')
+	  		]]>
+        </if>
+        <if test="params.xm!=null and params.xm != ''">
+            and t.xm like '%'|| #{params.xm} ||'%'
+        </if>
+        <if test="params.sfzh!=null and params.sfzh != ''">
+            and t.sfzh =#{params.sfzh}
+        </if>
+     order by t.cjsj desc
+    </select>
+</mapper>

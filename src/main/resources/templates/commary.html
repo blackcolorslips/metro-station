@@ -1,0 +1,296 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="Cache-Control" content="no-siteapp" />
+		<title>commary</title>
+		<link rel="icon" type="image/png" href="assets/i/favicon.png">
+		<link rel="stylesheet" href="assets/css/iview.css" />
+		<link rel="stylesheet/less" type="text/css" href="assets/css/app.less" />
+		<style>
+			html,body,#app{
+			    height: 100%;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!--[if lte IE 9]>
+			你正在使用
+		<![endif]-->
+		<div id="app">
+			<i-menu mode="horizontal" :theme="menuTheme" active-name="commary" @on-select="changeNav">
+				<row>
+					<i-col span="10">
+						<div class="layout-logo">
+							<img src="assets/images/logo.png" />
+							<span>汽车站查缉查控平台</span>
+						</div>
+					</i-col>
+					<i-col span="14">
+						<mine-nav :nav-info="navInfo"></mine-nav>
+						
+					</i-col>
+				</row>
+
+			</i-menu>
+			
+			<div class="layout-main">
+				<i-form :model="search" :label-width="80">
+					<row>
+						<i-col :md="10" :lg="10">
+							<form-item label="采集时间">
+								<date-picker v-model="search.timeCollect" type="datetimerange" placeholder="选择时间段" style="display: block;"></date-picker>
+							</form-item>
+						</i-col>
+						<i-col :md="8" :lg="8">
+							<form-item label="设备名称">
+								<i-select v-model="search.device" clearable multiple filterable>
+									<i-option v-for="item in device" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+								</i-select>
+							</form-item>
+						</i-col>
+						
+						<i-col :md="{span:6,offset:0}" :lg="{span:4,offset:2}">
+							<form-item  class="am-text-right">
+								<i-button type="primary" @click="commary">统计</i-button>
+								<i-button type="success" @click="">导出</i-button>
+							</form-item>
+						</i-col>
+					</row>
+				</i-form>
+				
+				<div id="main" class="am-margin-top-lg" style="height:80%;"></div>
+				
+			</div>
+
+		</div>
+
+	</body>
+	<script src="assets/js/less.min.js"></script>
+	<script src="assets/js/vue.js"></script>
+	<script type="text/javascript" src="assets/js/iview.js"></script>
+	<script type="text/javascript" src="assets/js/echarts.common.min.js"></script>
+	<script type="text/javascript" src="assets/js/app.js"> </script>
+	<script>
+		var app = new Vue({
+			el: '#app',
+			data: function() {
+				return {
+					menuTheme: 'dark',
+					search:{
+						timeCollect:"",
+						device:[]
+					},
+					device: [{
+							value: '0',
+							label: '设备名称1'
+						},
+						{
+							value: '1',
+							label: '设备名称2 '
+						},
+						{
+							value: '2',
+							label: '设备名称3 '
+						},
+						{
+							value: '3',
+							label: '设备名称4 '
+						},
+					],
+					option:{
+					    tooltip: {
+					        trigger: 'axis',
+					    },
+					    toolbox: {
+					        show : true,
+					        feature : {
+					            mark : {show: true},
+					            dataView : {show: true, readOnly: false},
+					            magicType : {show: true, type: ['line', 'bar']},
+					            restore : {show: true},
+					            saveAsImage : {show: true}
+					        }
+					    },
+					    legend: {
+					        data:['采集','常控','临控','吸毒','在逃'],
+					        textStyle:{
+					        	color:'white'
+					        }
+					    },
+					    xAxis: [
+					        {
+					            type: 'category',
+					            data: ['设备0','设备1','设备2','设备3','设备4'],
+					            axisPointer: {
+					                type: 'shadow'
+					            },
+					            axisLabel: {
+					                color:"white"
+					            },
+					        }
+					    ],
+					    yAxis: [
+					        {
+					            type: 'value',
+					            name: '人数',
+					            axisLabel: {
+					                formatter: '{value}人',
+					                color:"white"
+					            },
+					            nameTextStyle:{
+						        	color:'white'
+						        }
+					        },
+					        {
+					            type: 'value',
+					            name: '人数',
+					            axisLabel: {
+					                formatter: '{value}人',
+					                color:"white"
+					            },
+					            nameTextStyle:{
+						        	color:'white'
+						        }
+					        },
+					        
+					    ],
+					    series: [
+					        {
+					            name:'采集',
+					            type:'bar',
+					            data:[1000, 1020, 990, 1050, 1200],
+					            markPoint : {
+					                data : [
+					                    {type : 'max', name: '最大值'}
+					                ]
+					            },
+					            yAxisIndex:0,
+					            itemStyle:{
+					            	normal:{
+					            		color:"#1a76ff"
+					            	}
+					            }
+					        },
+					        {
+					            name:'常控',
+					            type:'bar',
+					            stack: '预警',
+					            data:[2.6, 5.9, 9.0, 26.4, 28.7],
+					            markPoint : {
+					                data : [
+					                    {type : 'max', name: '最大值'}
+					                ]
+					            },
+					            yAxisIndex:1,
+					            itemStyle:{
+					            	normal:{
+					            		color:"#fff177"
+					            	}
+					            }
+					        },
+					        {
+					            name:'临控',
+					            type:'bar',
+					            stack: '预警',
+					            data:[2.0, 2.2, 3.3, 4.5, 6.3],
+					            markPoint : {
+					                data : [
+					                    {type : 'max', name: '最大值'}
+					                ]
+					            },
+					             yAxisIndex:1,
+					            itemStyle:{
+					            	normal:{
+					            		color:"#00ffb4"
+					            	}
+					            }
+					        },
+					        {
+					            name:'吸毒',
+					            type:'bar',
+					            stack: '预警',
+					            data:[2.0, 2.2, 3.3, 4.5, 6.3],
+					            markPoint : {
+					                data : [
+					                    {type : 'max', name: '最大值'}
+					                ]
+					            },
+					             yAxisIndex:1,
+					            itemStyle:{
+					            	normal:{
+					            		color:"#00f6ff"
+					            	}
+					            }
+					        },
+					        {
+					            name:'在逃',
+					            type:'bar',
+					            stack: '预警',
+					            data:[2.0, 2.2, 3.3, 4.5, 6.3],
+					            markPoint : {
+					                data : [
+					                    {type : 'max', name: '最大值'}
+					                ]
+					            },
+					             yAxisIndex:1,
+					            itemStyle:{
+					            	normal:{
+					            		color:"#ff0000"
+					            	}
+					            }
+					        }
+					    ]
+					}
+					
+					
+					
+					
+				}
+			},
+			methods: {
+				//导航栏跳转
+				changeNav(name) {
+					if(name=="logout"){
+						localStorage.removeItem('navInfo');
+						this.$Message.success('退出成功');
+						window.location.href = "login.html"
+					}else{
+						window.location.href = name + ".html"
+					}
+				},
+				commary(){
+					//增加无数据情况
+					var that= this;
+					this.myChart.showLoading({
+					    text : "数据读取中，请稍等...",
+					    effect :"",
+					    textStyle : {
+					        fontSize : 20
+					    }
+					});
+					
+					setTimeout(function (){
+					    that.myChart.hideLoading();
+					},2200);
+				}
+				
+			},
+			created() {
+				this.navInfo=navInfo;
+			},
+			mounted(){
+				this.myChart = echarts.init(document.getElementById('main'));
+        		this.myChart.setOption(this.option);
+			}
+		})
+	</script>
+	<script type="text/javascript">
+        
+    </script>
+	</script>
+</html>

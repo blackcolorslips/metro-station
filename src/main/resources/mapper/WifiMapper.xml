@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hengdong.metrostation.dao.WifiDao">
+    <resultMap id="wifiModel" type="com.hengdong.metrostation.model.WifiModel">
+        <result column="ID" property="ID"></result>
+        <result column="MAC" property="MAC"></result>
+        <result column="CJSJ" property="CJSJ"></result>
+        <result column="SBXH" property="SBXH"></result>
+        <result column="SBXXID" property="SBXXID"></result>
+    </resultMap>
+    <!--获取wifi信息（分页）-->
+    <select id="getWifis" resultMap="wifiModel" parameterType="com.hengdong.metrostation.dto.DataGrid">
+        select *
+        from (select rownum rn, t1.*
+        from (select t.id,
+        t.mac,
+        t.cjsj,
+        t.sbxh,
+        t.sbxxid,
+        t2.sbbh
+        from t_dtz_wifi t, t_dtz_sbxx t2
+        where t.sbxxid = t2.id
+        <if test="params.startTime!=null and params.endTime != null">
+            <![CDATA[
+	  			and t.cjsj >= to_date(#{params.startTime}, 'yyyy-mm-dd hh24:mi:ss')
+	  			and t.cjsj < to_date(#{params.endTime}, 'yyyy-mm-dd hh24:mi:ss')
+	  		]]>
+        </if>
+        order by t.cjsj desc) t1)
+        where 1=1
+        <if test="rows !=0 and rows != ''">
+            and rn <![CDATA[<=]]>(#{page}*#{rows}) and rn <![CDATA[>]]>(#{page}-1)*#{rows}
+        </if>
+    </select>
+    <!--获取wifi信息总条数-->
+    <select id="getWifisCount" resultType="java.lang.Integer" parameterType="com.hengdong.metrostation.dto.DataGrid">
+        select count(-1)
+        from t_dtz_wifi t, t_dtz_sbxx t2
+        where t.sbxxid = t2.id
+        <if test="params.startTime!=null and params.endTime != null">
+            <![CDATA[
+	  			and t.cjsj >= to_date(#{params.startTime}, 'yyyy-mm-dd hh24:mi:ss')
+	  			and t.cjsj < to_date(#{params.endTime}, 'yyyy-mm-dd hh24:mi:ss')
+	  		]]>
+        </if>
+    </select>
+</mapper>

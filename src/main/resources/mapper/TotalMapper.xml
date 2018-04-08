@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hengdong.metrostation.dao.TotalDao">
+    <resultMap id="deviceModel" type="com.hengdong.metrostation.model.TotalInfoModel">
+        <result column="cmpNum" property="cmpNum"></result>
+        <result column="ofenCtlNum" property="ofenCtlNum"></result>
+        <result column="monCtrlNum" property="monCtrlNum"></result>
+        <result column="outCtlNum" property="outCtlNum"></result>
+        <result column="outCtlNum" property="outCtlNum"></result>
+    </resultMap>
+
+
+</mapper>
